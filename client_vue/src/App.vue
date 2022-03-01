@@ -1,55 +1,47 @@
 <template>
-  <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
+    <v-app>
+        <v-app-bar app color="primary" dark >
+            <v-toolbar-title>Trello Clone</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-toolbar-items v-if="!user">
+                <v-btn text :to="{ name: 'login' }">Login</v-btn>
+                <v-btn text :to="{ name: 'signup' }">SignUp</v-btn>
+            </v-toolbar-items>
+            <v-toolbar-items v-if="user">
+                <v-layout justify-content align-center>
+                    <h3>{{user.displayName}}</h3>
+                    <v-avatar :size="40" color="grey lighten-4">
+                        <img :src="user.imageUrl" alt="avatar">
+                    </v-avatar>
+                </v-layout>
+                <v-btn text @click="logout">Logout</v-btn>
+            </v-toolbar-items>
+            </v-app-bar>
 
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
-
-    <v-main>
-      <router-view/>
-    </v-main>
-  </v-app>
+        <v-main>
+            <pre>{{ user }}</pre>
+            <router-view/>
+        </v-main>
+    </v-app>
 </template>
 
 <script>
-
-export default {
-  name: 'App',
-
-  data: () => ({
-    //
-  }),
-};
+    import { mapState, mapGetters, mapActions } from 'vuex'
+    export default {
+        name: 'App',
+        data()  {
+           return {
+               fixed: false
+           }
+       },
+       computed: {
+            ...mapGetters('auth', { user: 'user' })
+        },
+       methods: {
+           ...mapActions('auth', { authLogout: 'logout' } ),
+           logout() {
+               this.authLogout().then( () => this.$router.push('/login')  )
+           }
+       }
+    }
 </script>

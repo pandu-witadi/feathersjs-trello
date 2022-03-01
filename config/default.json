@@ -1,10 +1,32 @@
 {
-    "host": "localhost",
-    "port": 3030,
-    "public": "../client_vue/dist",
-    "paginate": {
-        "default": 100,
-        "max": 500
+  "host": "localhost",
+  "port": 3030,
+  "public": "../client_vue/dist",
+  "paginate": {
+    "default": 100,
+    "max": 500
+  },
+  "mongodb": "mongodb://localhost:27017/feathersjs_trello",
+  "authentication": {
+    "entity": "user",
+    "service": "users",
+    "secret": "cpKKvB2Qjo8JHh51sPXs8dGTJr0=",
+    "authStrategies": [
+      "jwt",
+      "local"
+    ],
+    "jwtOptions": {
+      "header": {
+        "typ": "access"
+      },
+      "audience": "https://yourdomain.com",
+      "issuer": "feathers",
+      "algorithm": "HS256",
+      "expiresIn": "1d"
     },
-    "mongodb": "mongodb://localhost:27017/feathersjs_trello"
+    "local": {
+      "usernameField": "email",
+      "passwordField": "password"
+    }
+  }
 }
