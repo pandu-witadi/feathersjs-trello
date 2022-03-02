@@ -48,7 +48,7 @@
         }),
         computed: {
             ...mapState('cards', {
-                createCard: 'isCreatePending'
+                creatingCard: 'isCreatePending'
             })
         },
         methods: {

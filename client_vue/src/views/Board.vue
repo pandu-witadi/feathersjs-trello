@@ -17,7 +17,7 @@
                     </v-flex>
 
                     <v-flex v-if="!loadingLists" sm3 pa-2 v-for="list in lists" :key="list._id">
-                        <v-card>
+                        <v-card @dragover="setDroppingList($event, list)" :class="{ 'green lighten-4': droppingList == list}">
                             <v-card-title primary-title>
                                 <v-layout column>
                                     <v-flex xs12>
@@ -25,7 +25,7 @@
                                     </v-flex>
 
                                     <v-flex xs12 v-if="cardsByListId[list._id]" v-for="card in cardsByListId[list._id]" :key="card._id" class="pa-1">
-                                        <v-card draggable="true">
+                                        <v-card draggable="true" @dragstart="startDraggingCard(card)" @dragend="dropCard()">
                                             <v-container fluid grid-list-lg>
                                                 <v-layout row>
                                                     <v-flex xs12>
@@ -94,13 +94,18 @@
         },
         data: () => ({
             board: {},
+
             validList: false,
             list: {
                 name: '',
                 order: 0,
                 archived: false
             },
-            notEmptyRules: [ (value) => !!value || 'cannot be empty']
+            notEmptyRules: [ (value) => !!value || 'cannot be empty'],
+            droppingList: null,
+
+
+            draggingCard: null
         }),
         computed: {
             ...mapState('boards ', {
@@ -134,6 +139,7 @@
         },
         methods: {
            ...mapActions('boards',  { getBoard: 'get' }),
+
            ...mapActions('lists',  { findLists: 'find' }),
             createList() {
                 if (this.validList) {
@@ -150,7 +156,28 @@
                         })
                 }
             },
+            setDroppingList(event, list) {
+                this.droppingList = list
+
+                //allowed dropping event
+                event.preventDefault()
+            },
+
+
             ...mapActions('cards',  { findCards: 'find' }),
+            startDraggingCard(card) {
+                this.draggingCard = card
+            },
+            dropCard() {
+                if (this.droppingList) {
+                    this.draggingCard.listId = this.droppingList._id
+
+                    // will automatically sync with feathersjs backend
+                    this.draggingCard.save()
+                }
+                this.droppingList = null
+                this.draggingCard = null
+            }
        },
        mounted() {
            this.getBoard( this.$route.params.id )
