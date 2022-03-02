@@ -24,7 +24,7 @@
                                         <div class="headline">{{ list.name }}</div>
                                     </v-flex>
 
-                                    <!-- <v-flex xs12 v-if="cardsByListId[list._id]" v-for="card in cardsByListId[list._id]" :key="card._id" class="pa-1">
+                                    <v-flex xs12 v-if="cardsByListId[list._id]" v-for="card in cardsByListId[list._id]" :key="card._id" class="pa-1">
                                         <v-card draggable="true">
                                             <v-container fluid grid-list-lg>
                                                 <v-layout row>
@@ -36,14 +36,14 @@
                                                 </v-layout>
                                             </v-container>
                                         </v-card>
-                                    </v-flex> -->
+                                    </v-flex>
 
                                 </v-layout>
                             </v-card-title>
 
-                            <!-- <v-card-actions>
+                            <v-card-actions>
                                 <create-card :listId="list._id" :boardId="$route.params.id"></create-card>
-                            </v-card-actions> -->
+                            </v-card-actions>
 
                         </v-card>
                     </v-flex>
@@ -85,9 +85,13 @@
 
 <script>
     import { mapState, mapActions, mapGetters } from 'vuex'
+    import CreateCard from '../components/CreateCard'
 
     export default {
         name: 'board',
+        components: {
+            CreateCard
+        },
         data: () => ({
             board: {},
             validList: false,
@@ -113,19 +117,19 @@
                        }).data
             },
 
-            // ...mapGetters('cards', { findCardsInStore: 'find
-            // cards() {
-            //     return this.findCardsInStore({
-            //                  query: { boardId: this.$route.params.id }
-            //             }).data
-            // },
-            // cardsByListId() {
-            //     return this.cards.reduce( (byId, card) => {
-            //         byId[card.listId] = byId[card.listId] || []
-            //         byId[card.listId].push(card)
-            //         return byId
-            //     }, {})
-            // }
+            ...mapGetters('cards', { findCardsInStore: 'find' }),
+            cards() {
+                return this.findCardsInStore({
+                             query: { boardId: this.$route.params.id }
+                        }).data
+            },
+            cardsByListId() {
+                return this.cards.reduce( (byId, card) => {
+                    byId[card.listId] = byId[card.listId] || []
+                    byId[card.listId].push(card)
+                    return byId
+                }, {})
+            }
 
         },
         methods: {
@@ -146,18 +150,22 @@
                         })
                 }
             },
-            // ...mapActions('cards',  { findCards: 'find' }),
+            ...mapActions('cards',  { findCards: 'find' }),
        },
        mounted() {
            this.getBoard( this.$route.params.id )
            .then( response => {
                 this.board = response.data || response
-                console.log('board', this.board)
            })
 
            this.findLists( { query: { boardId: this.$route.params.id} })
            .then( response => {
                 this.lists = response.data || response
+           })
+
+           this.findCards( { query: { boardId: this.$route.params.id} })
+           .then( response => {
+                this.cards = response.data || response
            })
        }
     }
