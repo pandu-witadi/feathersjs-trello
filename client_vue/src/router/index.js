@@ -30,6 +30,18 @@ const routes = [
         path: '/login',
         name: 'login',
         component: () => import('../views/Login.vue'),
+    },
+    {
+        path: '/boards',
+        name: 'boards',
+        component: () => import('../views/Boards.vue'),
+        beforeEnter: isLoggedIn
+    },
+    {
+        path: '/boards/:id',
+        name: 'board',
+        component: () => import('../views/Board.vue'),
+        beforeEnter: isLoggedIn
     }
 ]
 

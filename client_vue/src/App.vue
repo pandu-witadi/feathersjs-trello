@@ -19,7 +19,6 @@
             </v-app-bar>
 
         <v-main>
-            <pre>{{ user }}</pre>
             <router-view/>
         </v-main>
     </v-app>
