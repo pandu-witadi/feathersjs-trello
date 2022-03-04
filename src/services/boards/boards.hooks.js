@@ -6,14 +6,14 @@ module.exports = {
     before: {
         all: [ authenticate('jwt') ],
         find: [
-             // hooks.restrictToOwner({
-             //     ownerField: 'ownerId'
-             // })
+             hooks.restrictToOwner({
+                 ownerField: 'ownerId'
+             })
          ],
          get: [
-             // hooks.restrictToOwner({
-             //     ownerField: 'ownerId'
-             // })
+             hooks.restrictToOwner({
+                 ownerField: 'ownerId'
+             })
          ],
          create: [
              hooks.associateCurrentUser({
@@ -21,19 +21,19 @@ module.exports = {
              })
          ],
          update: [
-             // hooks.restrictToOwner({
-             //     ownerField: 'ownerId'
-             // })
+             hooks.restrictToOwner({
+                 ownerField: 'ownerId'
+             })
          ],
          patch: [
-             // hooks.restrictToOwner({
-             //     ownerField: 'ownerId'
-             // })
+             hooks.restrictToOwner({
+                 ownerField: 'ownerId'
+             })
          ],
          remove: [
-             // hooks.restrictToOwner({
-             //     ownerField: 'ownerId'
-             // })
+             hooks.restrictToOwner({
+                 ownerField: 'ownerId'
+             })
          ]
     },
 
