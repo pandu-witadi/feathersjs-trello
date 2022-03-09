@@ -20,17 +20,17 @@
                           </v-flex>
 
                           <v-flex v-if="!loadingLists" sm3 pa-2 v-for="list in lists" :key="list._id">
-                              <!-- <single-list
+                              <single-list
                                 :list="list"
-                                :setDroppingList="onSetDroppingList"
+                                :setDroppingList="setDroppingList"
                                 :droppingList="droppingList"
                                 :cardsByListId="cardsByListId"
                                 :startDraggingCard="startDraggingCard"
                                 :dropCard="dropCard"
                                 :createActivity="createActivity"
                                 :user="user ? user.user : {}"
-                              ></single-list> -->
-                              <v-card @dragover="setDroppingList($event, list)" :class="{ 'green lighten-4': droppingList == list}">
+                              ></single-list>
+                              <!-- <v-card @dragover="setDroppingList($event, list)" :class="{ 'green lighten-4': droppingList == list}">
                                   <v-card-title primary-title>
                                       <v-layout column>
                                           <v-flex xs12>
@@ -58,7 +58,7 @@
                                       <create-card :listId="list._id" :boardId="$route.params.id"></create-card>
                                   </v-card-actions>
 
-                              </v-card>
+                              </v-card> -->
                           </v-flex>
 
                           <new-list-form
@@ -88,9 +88,8 @@
 
 <script>
     import { mapState, mapActions, mapGetters } from 'vuex'
-    import { notEmptyRules } from '@/util/validators'
 
-    import CreateCard from '../components/CreateCard'
+    import { notEmptyRules } from '@/util/validators'
     import NewListForm from '@/components/NewListForm'
     import SingleList from '@/components/SingleList'
     import Activities from '@/components/Activities'
@@ -98,7 +97,6 @@
     export default {
         name: 'board',
         components: {
-            'create-card': CreateCard,
             'new-list-form': NewListForm,
             'single-list': SingleList,
             'activities': Activities
@@ -167,7 +165,7 @@
                     }
                     const { Activity } = this.$FeathersVuex.api
                     const activity = new Activity()
-                    activity.text = `${this. user.displayName} created list ${list.name}`
+                    activity.text = `${this.user.displayName} created list ${list.name}`
                     activity.boardId = this.$route.params.id
                     activity.save()
                 })

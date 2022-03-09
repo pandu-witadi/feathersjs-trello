@@ -33,10 +33,11 @@
 
 <script>
     import { mapState } from 'vuex'
+    import { notEmptyRules } from '@/util/validators'
 
     export default {
         name: 'create-card',
-        props: [ 'listId', 'boardId'],
+        props: [ 'listId', 'boardId', 'createActivity', 'user'],
         data: () => ({
             validCard: false,
             creatingCard: false,
@@ -44,32 +45,25 @@
                 title: '',
                 members: []
             },
-            notEmptyRules: [ (value) => !!value || 'cannot be empty']
+            notEmptyRules
         }),
-        computed: {
-            ...mapState('cards', {
-                creatingCard: 'isCreatePending'
-            })
-        },
         methods: {
-            createCard() {
+            async createCard() {
                 if (this.validCard) {
                     const { Card } = this.$FeathersVuex.api
                     this.card.boardId = this.boardId
                     this.card.listId = this.listId
                     const card = new Card(this.card)
                     this.creatingCard = true
-                    card.save()
-                        .then( () => {
-                            this.card = {
-                                title: '',
-                                members: []
-                            }
-                            this.creatingCard = false
-                    })
-
+                    await card.save()
+                    this.creatingCard = false
+                    this.card = {
+                        title: '',
+                        members: []
+                    }
+                    this.createActivity(`**${this.user.displayName}** created card **${card.title}**`)
                 }
             }
         }
     }
-</script>
+</script>`${this. user.displayName} created list ${list.name}`

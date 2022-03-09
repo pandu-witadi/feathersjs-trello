@@ -21,8 +21,12 @@
             </v-layout>
         </v-card-title>
         <v-card-actions>
-            <create-card :user="user" :createActivity="createActivity" ``:listId="list._id" :boardId="$route.params.id">
-        </create-card>
+            <create-card
+                :user="user"
+                :createActivity="createActivity"
+                :listId="list._id"
+                :boardId="$route.params.id">
+            </create-card>
         </v-card-actions>
     </v-card>
 </template>
@@ -42,7 +46,7 @@
             'user',
         ],
         components: {
-            CreateCard,
+            'create-card': CreateCard,
         },
     }
 </script>

@@ -10,7 +10,7 @@
                 <v-list three-line>
                     <v-list-item v-for="activity in activitiesByDate" :key="activity._id" @click="">
                         <v-list-item-action>
-                            <v-icon color="green">>mdi-ticket</v-icon>
+                            <v-icon color="green">mdi-ticket</v-icon>
                         </v-list-item-action>
                         <v-list-item-content>
                             <!-- <v-list-tile-title v-text="activity.userId"></v-list-tile-title> -->
