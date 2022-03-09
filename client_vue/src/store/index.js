@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 
 import { FeathersVuex } from '../feathers-client'
 import auth from './store.auth'
-
+import board from './board'
 
 Vue.use(Vuex)
 Vue.use(FeathersVuex)
@@ -26,7 +26,9 @@ export default new Vuex.Store({
     state: {},
     mutations: {},
     actions: {},
-    modules: {},
+    modules: {
+        board
+    },
     plugins: [
         ...servicePlugins,
         auth,

@@ -20,6 +20,16 @@
                           </v-flex>
 
                           <v-flex v-if="!loadingLists" sm3 pa-2 v-for="list in lists" :key="list._id">
+                              <!-- <single-list
+                                :list="list"
+                                :setDroppingList="onSetDroppingList"
+                                :droppingList="droppingList"
+                                :cardsByListId="cardsByListId"
+                                :startDraggingCard="startDraggingCard"
+                                :dropCard="dropCard"
+                                :createActivity="createActivity"
+                                :user="user ? user.user : {}"
+                              ></single-list> -->
                               <v-card @dragover="setDroppingList($event, list)" :class="{ 'green lighten-4': droppingList == list}">
                                   <v-card-title primary-title>
                                       <v-layout column>
@@ -51,56 +61,24 @@
                               </v-card>
                           </v-flex>
 
-                          <v-flex sm4 pa-2 >
-                              <v-card-title primary-title style="flex-direction: column">
-                                 <div class="headline">Create List</div>
-                                 <div>
-                                     <v-form
-                                         v-if="!creatingList"
-                                         v-model="validList"
-                                         @submit.prevent="createList"
-                                         @keydown.prevent.enter>
-                                         <v-text-field
-                                           v-model="list.name"
-                                           :rules="notEmptyRules"
-                                           label="Name"
-                                           required
-                                         ></v-text-field>
+                          <new-list-form
+                              :creatingList="creatingList"
+                              :createList="createList"
+                            ></new-list-form>
 
-                                         <v-btn type="submit" :disabled="!validList">Create List</v-btn>
-                                     </v-form>
-                                     <v-progress-circular
-                                       v-if="creatingList"
-                                       :size="70"
-                                       :width="7"
-                                       indetermine
-                                       color="primary">
-                                     </v-progress-circular>
-                                 </div>
-                              </v-card-title>
-                          </v-flex>
                         </v-layout>
 
                         <v-progress-circular
-
+                        v-if="creatingList"
+                        :size="70"
+                        :width="7"
+                        indeterminate
+                        color="primary">
+                        </v-progress-circular>
 
                     </v-flex>
                     <v-flex xs2>
-                        <v-card>
-                            <v-card-title primary-title>
-                                <div><h3 class="headline mb-0">Activities</h3></div>
-                            </v-card-title>
-                            <v-list three-line>
-                                <v-list-tile v-for="activity in activities" :key="activity._id" @click="">
-                                    <v-list-tile-action>
-                                        <v-icon color="green">mdi-ticket</v-icon>
-                                    </v-list-tile-action>
-                                    <v-list-tile-content>
-                                        <v-list-tile-sub-title v-text="activity.text"></v-list-tile-sub-title>
-                                    </v-list-tile-content>
-                                </v-list-tile>
-                            </v-list>
-                        </v-card>
+                        <activities :activitiesByDate="activitiesByDate"></activities>
                     </v-flex>
 
                 </v-layout>
@@ -110,25 +88,25 @@
 
 <script>
     import { mapState, mapActions, mapGetters } from 'vuex'
+    import { notEmptyRules } from '@/util/validators'
+
     import CreateCard from '../components/CreateCard'
+    import NewListForm from '@/components/NewListForm'
+    import SingleList from '@/components/SingleList'
+    import Activities from '@/components/Activities'
 
     export default {
         name: 'board',
         components: {
-            CreateCard
+            'create-card': CreateCard,
+            'new-list-form': NewListForm,
+            'single-list': SingleList,
+            'activities': Activities
         },
         data: () => ({
             board: {},
-
-            validList: false,
-            list: {
-                name: '',
-                order: 0,
-                archived: false
-            },
-            notEmptyRules: [ (value) => !!value || 'cannot be empty'],
+            notEmptyRules ,
             droppingList: null,
-
 
             draggingCard: null
         }),
@@ -150,14 +128,10 @@
             ...mapGetters('lists', { findListsInStore: 'find'}),
             ...mapGetters('cards', { findCardsInStore: 'find' }),
             lists() {
-                return this.findListsInStore({
-                            query: { boardId: this.$route.params.id }
-                       }).data
+                return this.findListsInStore({ query: { boardId: this.$route.params.id } }).data
             },
             cards() {
-                return this.findCardsInStore({
-                             query: { boardId: this.$route.params.id }
-                        }).data
+                return this.findCardsInStore({ query: { boardId: this.$route.params.id } }).data
             },
             cardsByListId() {
                 return this.cards.reduce( (byId, card) => {
@@ -169,35 +143,35 @@
 
             ...mapGetters('activities', { findActivitiesInStore: 'find' }),
             activities() {
-                return this.findActivitiesInStore({
-                            query: { boardId: this.$route.params.id }
-                       }).data
+                return this.findActivitiesInStore({ query: { boardId: this.$route.params.id } }).data
             },
-
+            activitiesByDate() {
+                return this.activities.slice().reverse();
+            }
         },
         methods: {
-           ...mapActions('boards',  { getBoard: 'get' }),
+        // ...mapMutations('board', ['setDroppingList', 'setDraggingCard']),
+        ...mapActions('boards',  { getBoard: 'get' }),
 
-           ...mapActions('lists',  { findLists: 'find' }),
-            createList() {
-                if (this.validList) {
-                    const { List } = this.$FeathersVuex.api
-                    this.list.boardId = this.$route.params.id
-                    const list = new List(this.list)
-                    list.save()
-                        .then( () => {
-                            this.list = {
-                                name: '',
-                                order: 0,
-                                archived: false
-                            }
-                            const { Activity } = this.$FeathersVuex.api
-                            const activity = new Activity()
-                            activity.text = `${this. user.displayName} created List ${list.name}`
-                            activity.boardId = this.$route.params.id
-                            activity.save()
-                        })
-                }
+        ...mapActions('lists',  { findLists: 'find' }),
+        async createList(list) {
+            const { List } = this.$FeathersVuex.api
+            list.boardId = this.$route.params.id
+            const newList = new List(list)
+            newList.save()
+                .then( () => {
+                    this.list = {
+                        name: '',
+                        order: 0,
+                        archived: false
+                    }
+                    const { Activity } = this.$FeathersVuex.api
+                    const activity = new Activity()
+                    activity.text = `${this. user.displayName} created list ${list.name}`
+                    activity.boardId = this.$route.params.id
+                    activity.save()
+                })
+
             },
             setDroppingList(event, list) {
                 this.droppingList = list
@@ -223,29 +197,20 @@
             },
 
             ...mapActions('activities',  { findActivities: 'find' }),
+            async createActivity(text) {
+                const { Activity } = this.$FeathersVuex.api;
+                const activity = new Activity();
+                activity.text = text;
+                activity.boardId = this.$route.params.id;
+                activity.userId = this.user.userId;
+                await activity.save();
+            }
        },
        mounted() {
            this.getBoard( this.$route.params.id )
-           .then( response => {
-                this.board = response.data || response
-           })
-
-
            this.findLists( { query: { boardId: this.$route.params.id} })
-           .then( response => {
-                this.lists = response.data || response
-           })
-
            this.findCards( { query: { boardId: this.$route.params.id} })
-           .then( response => {
-                this.cards = response.data || response
-           })
-
            this.findActivities( { query: { boardId: this.$route.params.id} })
-           .then( response => {
-                this.activities = response.data || response
-           })
-
        }
     }
 </script>

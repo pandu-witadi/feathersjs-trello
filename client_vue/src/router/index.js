@@ -20,6 +20,13 @@ const routes = [
         path: '/',
         name: 'home',
         component: () => import('../views/Home.vue'),
+        beforeEnter(to, from, next) {
+            store.dispatch('auth/authenticate').then( () => {
+                next('/boards')
+            }).catch( () => {
+                next('/login')
+            })
+        }
     },
     {
         path: '/signup',

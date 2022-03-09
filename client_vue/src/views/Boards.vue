@@ -12,62 +12,13 @@
                       color="primary">
                     </v-progress-circular>
 
-                    <v-flex
-                        v-if="!loading" sm3 pa-2
-                        v-for="board in boards"
-                        :key="board._id"
-                    >
-                        <v-card>
-                            <v-img height="200" :src="board.background">
-                            </v-img>
-                            <v-card-title primary>
-                                <div class="headline">{{ board.name }}</div>
-                            </v-card-title>
-                            <v-card-actions>
-                                <v-btn color="primary" :to="{ name: 'board', params: { id: board._id }}">Go</v-btn>
-                            </v-card-actions>
-                        </v-card>
+                    <v-flex v-if="!loading" sm3 pa-2 v-for="board in boards" :key="board._id">
+                        <single-board :board="board"></single-board>
                     </v-flex>
 
-                    <v-flex sm4 pa-2 >
-                       <v-card-title primary-title style="flex-direction: column">
-                           <div class="headline">Create Board</div>
-                           <div>
-                               <v-form
-                                   v-if="!creating"
-                                   v-model="valid"
-                                   @submit.prevent="createBoard"
-                                   @keydown.prevent.enter
-                                 >
-                                   <v-text-field
-                                     v-model="board.name"
-                                     :rules="notEmptyRules"
-                                     label="Name"
-                                     required
-                                   ></v-text-field>
-
-                                   <v-text-field
-                                     v-model="board.background"
-                                     :rules="notEmptyRules"
-                                     label="Background"
-                                     required
-                                   ></v-text-field>
-
-                                   <v-btn type="submit" :disabled="!valid">Create</v-btn>
-                               </v-form>
-                               <v-progress-circular
-                                 v-if="creating"
-                                 :size="70"
-                                 :width="7"
-                                 indetermine
-                                 color="primary">
-                               </v-progress-circular>
-                           </div>
-                       </v-card-title>
-                   </v-flex>
+                    <new-board-form :creating="creating" :createBoard="createBoard"></new-board-form>
 
                 </v-layout>
-
             </v-slide-y-transition>
         </v-container>
     </div>
@@ -75,17 +26,15 @@
 
 <script>
     import { mapState, mapGetters, mapActions } from 'vuex'
+    import NewBoardForm from '@/components/NewBoardForm'
+    import SingleBoard from '@/components/SingleBoard'
 
     export default {
         name: 'boards',
-        data: () => ({
-            valid: false,
-            board: {
-                name: '',
-                background: ''
-            },
-            notEmptyRules: [ (value) => !!value || 'cannot be empty']
-        }),
+        components: {
+            'new-board-form': NewBoardForm,
+            'single-board': SingleBoard,
+        },
         computed: {
             ...mapGetters('auth', { user: 'user' } ),
             ...mapState('boards', {
@@ -99,25 +48,14 @@
         },
         methods: {
             ...mapActions('boards', { findBoards: 'find' }),
-            createBoard() {
-                if (this.valid) {
-                    const { Board } = this.$FeathersVuex.api
-                    const board = new Board(this.board)
-                    board.save()
-                        .then( () => {
-                            this.board = {
-                                name: '',
-                                background: ''
-                            }
-                    })
-                }
-            }
+            async createBoard(board) {
+                const { Board } = this.$FeathersVuex.api
+                const newBoard = new Board(board)
+                await newBoard.save()
+            },
         },
         mounted() {
             this.findBoards({ query: {} })
-            .then(response => {
-                const boards = response.data || response
-            })
         }
     }
 </script>

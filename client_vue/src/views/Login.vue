@@ -42,6 +42,7 @@
 
 <script>
     import { mapState, mapActions } from 'vuex'
+    import { notEmptyRules } from '@/util/validators'
 
     export default {
         name: 'Login',
@@ -51,7 +52,7 @@
                 email: '',
                 password: ''
             },
-            notEmptyRules: [ (value) => !!value || 'cannot be empty']
+            notEmptyRules
         }),
         computed: {
             ...mapState('auth', { loading: 'isAuthenticatePending' })
@@ -65,7 +66,6 @@
                         email: this.user.email,
                         password: this.user.password
                     }).then( () => {
-                        console.log('logged in !')
                         this.$router.push('/boards')
                     }).catch( e => {
                         console.log('authentication error', e)
